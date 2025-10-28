@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Database, RefreshCw, Clock, TrendingUp 
 } from 'lucide-react';
@@ -116,6 +116,20 @@ const EnergyDataAnalytics = ({ filters }: { filters: FilterOptions }) => {
     };
   }, [data]);
 
+  // ✅ Helper to safely get analytics data arrays (fix for line 207)
+  const getAnalyticsArray = useCallback((cat: string) => {
+    switch (cat) {
+      case 'plant':
+        return analytics.byPlant || [];
+      case 'department':
+        return analytics.byDepartment || [];
+      case 'parameter':
+        return analytics.byParameter || [];
+      default:
+        return [];
+    }
+  }, [analytics]);
+
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
 
   return (
@@ -204,7 +218,7 @@ const EnergyDataAnalytics = ({ filters }: { filters: FilterOptions }) => {
                 <CardHeader><CardTitle>{cat.charAt(0).toUpperCase() + cat.slice(1)} Breakdown</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={analytics[`by${cat.charAt(0).toUpperCase() + cat.slice(1)}`]}>
+                    <BarChart data={getAnalyticsArray(cat)}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="category" />
                       <YAxis />

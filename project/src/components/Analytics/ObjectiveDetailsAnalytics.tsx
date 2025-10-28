@@ -1,5 +1,3 @@
-import React from 'react';
-
 // Placeholder file to satisfy tooling scans (no longer used in dashboard)
 const ObjectiveDetailsAnalytics = () => {
   return (

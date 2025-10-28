@@ -9,8 +9,6 @@ import {
   PieChart as PieChartIcon,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -170,12 +168,8 @@ const FossilFuelAnalytics: React.FC = () => {
             </p>
           ) : (
             <>
-              <p className="text-sm text-gray-500">
-                Last updated: {lastUpdated ? lastUpdated.toLocaleString() : "—"}
-              </p>
-              <p className="text-gray-700 mt-2">
-                Live fossil fuel consumption analytics for Scope 1 GHG emissions.
-              </p>
+              <p className="text-sm text-gray-500">Last updated: {lastUpdated ? lastUpdated.toLocaleString() : "—"}</p>
+              <p className="text-gray-700 mt-2">Live fossil fuel consumption analytics for Scope 1 GHG emissions.</p>
             </>
           )}
         </CardContent>
@@ -204,21 +198,15 @@ const FossilFuelAnalytics: React.FC = () => {
                     <p className="text-sm text-gray-600">Records</p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">
-                      {analytics.totals.totalQty.toFixed(2)}
-                    </p>
+                    <p className="text-2xl font-bold text-green-600">{analytics.totals.totalQty.toFixed(2)}</p>
                     <p className="text-sm text-gray-600">Total Quantity</p>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <p className="text-2xl font-bold text-yellow-600">
-                      {analytics.totals.totalValue.toFixed(2)}
-                    </p>
+                    <p className="text-2xl font-bold text-yellow-600">{analytics.totals.totalValue.toFixed(2)}</p>
                     <p className="text-sm text-gray-600">Total Value</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {analytics.totals.avgConv.toFixed(2)}
-                    </p>
+                    <p className="text-2xl font-bold text-purple-600">{analytics.totals.avgConv.toFixed(2)}</p>
                     <p className="text-sm text-gray-600">Avg Conversion Factor</p>
                   </div>
                 </div>
@@ -296,7 +284,7 @@ const FossilFuelAnalytics: React.FC = () => {
                       cy="50%"
                       outerRadius={120}
                     >
-                      {analytics.byPlant.map((entry, idx) => (
+                      {analytics.byPlant.map((_, idx) => (
                         <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
                       ))}
                     </Pie>

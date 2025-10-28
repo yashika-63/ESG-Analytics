@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Upload, FileSpreadsheet, BarChart3, PieChart, TrendingUp, Zap, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Upload, FileSpreadsheet, TrendingUp, Clock } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, PieChart as RechartsPieChart, Pie, Cell 
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#84CC16"];
 
-const Scope3Analytics = ({ filters }: { filters: any }) => {
+const Scope3Analytics = () => {
   const [data, setData] = useState<Record<string, any>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('idle');
@@ -357,7 +357,7 @@ const Scope3Analytics = ({ filters }: { filters: any }) => {
             outerRadius={120} 
             fill="#8884d8" 
           >
-            {analytics.topContributors.map((entry, index) => (
+            {analytics.topContributors.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>

@@ -1,6 +1,26 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Upload, FileSpreadsheet, BarChart3, PieChart, TrendingUp, Users, AlertTriangle, CheckCircle, Clock, Flag } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { useState, useCallback, useMemo } from 'react';
+import {
+  Upload,
+  FileSpreadsheet,
+  TrendingUp,
+  Users,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Flag,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from 'recharts';
 import * as XLSX from 'xlsx';
 
 const fieldMapping = {
@@ -20,7 +40,7 @@ const fieldMapping = {
   'Total Complaints': 'totalComplaints',
   'Complaints By Female Employee': 'complaintsByFemale',
   'Complaints on POSH upheld': 'poshUpheld',
-  'Actual Compliance Ind': 'complianceInd'
+  'Actual Compliance Ind': 'complianceInd',
 };
 
 const numericFields = [
@@ -28,7 +48,7 @@ const numericFields = [
   'wagesMales',
   'totalComplaints',
   'complaintsByFemale',
-  'poshUpheld'
+  'poshUpheld',
 ];
 
 const parseNumeric = (val: any) => {
@@ -44,8 +64,7 @@ const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
 const DiversityDataAnalytics = () => {
   const [data, setData] = useState<Record<string, any>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState('idle');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target?.files?.[0];
@@ -81,7 +100,10 @@ const DiversityDataAnalytics = () => {
         const dataRows = rows.slice(headerRowIndex + 1) as any[];
 
         const processed = dataRows
-          .filter((row: any) => Array.isArray(row) && row.some((cell: any) => cell !== null && cell !== undefined && cell !== ''))
+          .filter(
+            (row: any) =>
+              Array.isArray(row) && row.some((cell: any) => cell !== null && cell !== undefined && cell !== '')
+          )
           .map((row: any[]) => {
             let mapped: Record<string, any> = {};
             headers.forEach((header: string, idx: number) => {
@@ -110,17 +132,16 @@ const DiversityDataAnalytics = () => {
     reader.readAsBinaryString(file);
   }, []);
 
-  // Analytics calculations
   const analytics = useMemo(() => {
-    if (data.length === 0) return {
-      overviewMetrics: null,
-      wagesTrends: [],
-      complaintsBreakdown: [],
-      poshTrend: [],
-      complianceSummary: 0
-    };
+    if (data.length === 0)
+      return {
+        overviewMetrics: null,
+        wagesTrends: [],
+        complaintsBreakdown: [],
+        poshTrend: [],
+        complianceSummary: 0,
+      };
 
-    // Overview totals
     const overviewMetrics = {
       totalWagesFemales: 0,
       totalWagesMales: 0,
@@ -128,13 +149,10 @@ const DiversityDataAnalytics = () => {
       totalComplaintsByFemales: 0,
       totalPOSHUpheld: 0,
       complianceCount: 0,
-      complianceTotal: 0
+      complianceTotal: 0,
     };
 
-    // Wages, complaints, POSH over month-year
     const monthYearMap = new Map();
-
-    // Complaints breakdown by dim1/dim2 if needed
     const complaintsByDim1 = new Map();
     const complaintsByDim2 = new Map();
 
@@ -156,7 +174,7 @@ const DiversityDataAnalytics = () => {
           complaints: 0,
           complaintsByFemales: 0,
           poshUpheld: 0,
-          recordCount: 0
+          recordCount: 0,
         });
       }
 
@@ -176,33 +194,33 @@ const DiversityDataAnalytics = () => {
       }
     });
 
-    // Convert maps to arrays for charting
-    const wagesTrends = Array.from(monthYearMap.values()).map(m => ({
+    const wagesTrends = Array.from(monthYearMap.values()).map((m: any) => ({
       monthYear: m.monthYear,
       wagesFemales: m.wagesFemales,
-      wagesMales: m.wagesMales
+      wagesMales: m.wagesMales,
     }));
 
     const complaintsBreakdown = Array.from(complaintsByDim1.entries()).map(([dim1, count]) => ({
       category: dim1,
-      totalComplaints: count
+      totalComplaints: count,
     }));
 
-    const poshTrend = Array.from(monthYearMap.values()).map(m => ({
+    const poshTrend = Array.from(monthYearMap.values()).map((m: any) => ({
       monthYear: m.monthYear,
-      poshUpheld: m.poshUpheld
+      poshUpheld: m.poshUpheld,
     }));
 
-    const complianceSummary = overviewMetrics.complianceTotal > 0
-      ? (overviewMetrics.complianceCount / overviewMetrics.complianceTotal) * 100
-      : 0;
+    const complianceSummary =
+      overviewMetrics.complianceTotal > 0
+        ? (overviewMetrics.complianceCount / overviewMetrics.complianceTotal) * 100
+        : 0;
 
     return {
       overviewMetrics,
       wagesTrends,
       complaintsBreakdown,
       poshTrend,
-      complianceSummary
+      complianceSummary,
     };
   }, [data]);
 
@@ -223,9 +241,7 @@ const DiversityDataAnalytics = () => {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <label htmlFor="file-upload" className="cursor-pointer">
-              <span className="text-lg font-medium text-indigo-600 hover:text-indigo-500">
-                Choose Excel file
-              </span>
+              <span className="text-lg font-medium text-indigo-600 hover:text-indigo-500">Choose Excel file</span>
               <input id="file-upload" type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" />
             </label>
           </div>
@@ -260,14 +276,18 @@ const DiversityDataAnalytics = () => {
                 <Users className="w-8 h-8 text-indigo-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Total Wages Paid To Females</p>
-                  <p className="text-2xl font-semibold">{(analytics.overviewMetrics?.totalWagesFemales ?? 0).toLocaleString()}</p>
+                  <p className="text-2xl font-semibold">
+                    {(analytics.overviewMetrics?.totalWagesFemales ?? 0).toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-lg shadow border border-gray-200 flex items-center">
                 <Users className="w-8 h-8 text-blue-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Total Wages Paid To Males</p>
-                  <p className="text-2xl font-semibold">{(analytics.overviewMetrics?.totalWagesMales ?? 0).toLocaleString()}</p>
+                  <p className="text-2xl font-semibold">
+                    {(analytics.overviewMetrics?.totalWagesMales ?? 0).toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-lg shadow border border-gray-200 flex items-center">

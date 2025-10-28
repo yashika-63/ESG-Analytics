@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Database, TrendingUp, Droplets, RefreshCw, Clock } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import * as XLSX from 'xlsx';
@@ -284,7 +284,7 @@ const WaterAnalytics = ({ filters }: { filters?: FilterOptions }) => {
                       outerRadius={80}
                       fill="#8884d8"
                     >
-                      {analytics.byPlant.map((entry, index) => (
+                      {analytics.byPlant.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                       ))}
                     </Pie>

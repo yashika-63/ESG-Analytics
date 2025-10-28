@@ -145,7 +145,7 @@ const InclusionAnalytics:React.FC = () => {
         {data.length>0 && analytics.overviewTotals && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              {numericFields.map((f,i)=>(
+              {numericFields.map((f) => (
                 <div key={f} className="bg-white p-5 rounded border shadow flex gap-3 items-center">
                   <Home className="w-8 h-8 text-indigo-600"/>
                   <div>

@@ -1,11 +1,26 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Upload, FileSpreadsheet, TrendingUp, Clock } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line
+} from 'recharts';
 import * as XLSX from 'xlsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const FugitiveAnalytics = ({ filters }: { filters: any }) => {
+interface FugitiveAnalyticsProps {
+  filters?: any;
+}
+
+const FugitiveAnalytics: React.FC<FugitiveAnalyticsProps> = () => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -34,9 +49,7 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
     "Pending With": "pendingWith",
   };
 
-  const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
-
-  const parseNumeric = (val: any) => {
+  const parseNumeric = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
     if (typeof val === 'string') {
@@ -66,8 +79,8 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
 
         if (jsonData.length < 6) throw new Error("Excel must contain header and data rows");
 
-        const headers = jsonData[4]; // row 5 = headers
-        const dataRows = jsonData.slice(5); // from row 6 onwards
+        const headers = jsonData[4]; // Row 5 = headers
+        const dataRows = jsonData.slice(5); // From row 6 onwards
 
         const processedData = dataRows
           .filter(row => row && row.some(cell => cell !== null && cell !== undefined && cell !== ''))
@@ -78,7 +91,9 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
                 const key = fieldMapping[header];
                 const val = row[idx];
                 const numericFields = ["quantity", "convFactor", "value", "rIntensity", "pppIntensity"];
-                mappedRow[key] = numericFields.includes(key) ? parseNumeric(val) : (val ? val.toString().trim() : '');
+                mappedRow[key] = numericFields.includes(key)
+                  ? parseNumeric(val)
+                  : (val ? val.toString().trim() : '');
               }
             });
             return mappedRow;
@@ -100,13 +115,30 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
 
   // Analytics
   const analytics = useMemo(() => {
-    if (data.length === 0) return { byType: [], byAttribute: [], byParameter: [], bySubCategory: [], monthlyTrends: [] };
+    if (data.length === 0)
+      return {
+        byType: [],
+        byAttribute: [],
+        byParameter: [],
+        bySubCategory: [],
+        monthlyTrends: []
+      };
 
     const aggregate = (key: string) => {
       const map = new Map<string, any>();
       data.forEach(d => {
         const cat = d[key] || "Unknown";
-        if (!map.has(cat)) map.set(cat, { category: cat, totalQuantity: 0, totalValue: 0, convFactorSum: 0, rIntensitySum: 0, pppIntensitySum: 0, count: 0 });
+        if (!map.has(cat)) {
+          map.set(cat, {
+            category: cat,
+            totalQuantity: 0,
+            totalValue: 0,
+            convFactorSum: 0,
+            rIntensitySum: 0,
+            pppIntensitySum: 0,
+            count: 0
+          });
+        }
         const agg = map.get(cat);
         agg.totalQuantity += d.quantity || 0;
         agg.totalValue += d.value || 0;
@@ -129,7 +161,16 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
     const monthlyMap = new Map<string, any>();
     data.forEach(d => {
       const key = `${d.month || 'Unknown'} ${d.financialYear || 'Unknown'} ${d.type || 'Unknown'}`;
-      if (!monthlyMap.has(key)) monthlyMap.set(key, { monthYearType: key, month: d.month, year: d.financialYear, type: d.type, totalQuantity: 0, totalValue: 0 });
+      if (!monthlyMap.has(key)) {
+        monthlyMap.set(key, {
+          monthYearType: key,
+          month: d.month,
+          year: d.financialYear,
+          type: d.type,
+          totalQuantity: 0,
+          totalValue: 0
+        });
+      }
       const agg = monthlyMap.get(key);
       agg.totalQuantity += d.quantity || 0;
       agg.totalValue += d.value || 0;
@@ -140,9 +181,13 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
       byAttribute: aggregate("attribute"),
       byParameter: aggregate("parameter"),
       bySubCategory: aggregate("subCategory"),
-      monthlyTrends: [...monthlyMap.values()],
+      monthlyTrends: [...monthlyMap.values()]
     };
   }, [data]);
+
+  // Chart Data Accessor Helper (typed)
+  const getAnalyticsData = (key: 'byType' | 'byAttribute' | 'byParameter' | 'bySubCategory' | 'monthlyTrends') =>
+    analytics[key] || [];
 
   return (
     <div className="p-6 space-y-6">
@@ -157,18 +202,27 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
         <CardContent>
           <div className="border-2 border-dashed border-gray-300 p-8 text-center rounded-lg">
             <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <label htmlFor="fugitive-upload" className="cursor-pointer text-lg font-medium text-green-600 hover:text-green-500">
+            <label
+              htmlFor="fugitive-upload"
+              className="cursor-pointer text-lg font-medium text-green-600 hover:text-green-500"
+            >
               Choose Excel file
               <input id="fugitive-upload" type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" />
             </label>
-            {isLoading && <p className="mt-4 text-green-600 flex items-center justify-center"><Clock className="w-5 h-5 animate-spin mr-2" /> Processing...</p>}
-            {uploadStatus === "success" && <p className="mt-4 text-green-600">Loaded {data.length} records successfully</p>}
+            {isLoading && (
+              <p className="mt-4 text-green-600 flex items-center justify-center">
+                <Clock className="w-5 h-5 animate-spin mr-2" /> Processing...
+              </p>
+            )}
+            {uploadStatus === "success" && (
+              <p className="mt-4 text-green-600">Loaded {data.length} records successfully</p>
+            )}
             {uploadStatus === "error" && <p className="mt-4 text-red-600">Error reading Excel. Check format.</p>}
           </div>
         </CardContent>
       </Card>
 
-      {/* Analytics */}
+      {/* Analytics Section */}
       {data.length > 0 && (
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
@@ -185,30 +239,19 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
               <CardHeader><CardTitle>Key Metrics Overview</CardTitle></CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">{data.length}</p>
-                    <p className="text-sm text-gray-600">Total Records</p>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">{data.reduce((a, v) => a + (v.quantity || 0), 0).toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">Total Quantity</p>
-                  </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <p className="text-2xl font-bold text-yellow-600">{data.reduce((a, v) => a + (v.value || 0), 0).toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">Total Value</p>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">{(data.reduce((a, v) => a + (v.convFactor || 0), 0) / data.length).toFixed(3)}</p>
-                    <p className="text-sm text-gray-600">Avg Conv Factor</p>
-                  </div>
-                  <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <p className="text-2xl font-bold text-red-600">{(data.reduce((a, v) => a + (v.rIntensity || 0), 0) / data.length).toFixed(3)}</p>
-                    <p className="text-sm text-gray-600">Avg RIntensity</p>
-                  </div>
-                  <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                    <p className="text-2xl font-bold text-indigo-600">{(data.reduce((a, v) => a + (v.pppIntensity || 0), 0) / data.length).toFixed(3)}</p>
-                    <p className="text-sm text-gray-600">Avg PPPIntensity</p>
-                  </div>
+                  {[
+                    { label: 'Total Records', value: data.length, color: 'blue' },
+                    { label: 'Total Quantity', value: data.reduce((a, v) => a + (v.quantity || 0), 0).toFixed(2), color: 'green' },
+                    { label: 'Total Value', value: data.reduce((a, v) => a + (v.value || 0), 0).toFixed(2), color: 'yellow' },
+                    { label: 'Avg Conv Factor', value: (data.reduce((a, v) => a + (v.convFactor || 0), 0) / data.length).toFixed(3), color: 'purple' },
+                    { label: 'Avg RIntensity', value: (data.reduce((a, v) => a + (v.rIntensity || 0), 0) / data.length).toFixed(3), color: 'red' },
+                    { label: 'Avg PPPIntensity', value: (data.reduce((a, v) => a + (v.pppIntensity || 0), 0) / data.length).toFixed(3), color: 'indigo' },
+                  ].map((m, i) => (
+                    <div key={i} className={`text-center p-4 bg-${m.color}-50 rounded-lg`}>
+                      <p className={`text-2xl font-bold text-${m.color}-600`}>{m.value}</p>
+                      <p className="text-sm text-gray-600">{m.label}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -220,7 +263,7 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
               <CardHeader><CardTitle>Totals by Type</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={analytics.byType}>
+                  <BarChart data={getAnalyticsData('byType')}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" tick={false} />
                     <YAxis />
@@ -241,7 +284,7 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
               <CardHeader><CardTitle>Monthly Trends</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={analytics.monthlyTrends}>
+                  <LineChart data={getAnalyticsData('monthlyTrends')}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="monthYearType" tick={false} />
                     <YAxis />
@@ -262,7 +305,9 @@ const FugitiveAnalytics = ({ filters }: { filters: any }) => {
                 <CardHeader><CardTitle>{cat.charAt(0).toUpperCase() + cat.slice(1)} Breakdown</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={analytics[`by${cat.charAt(0).toUpperCase() + cat.slice(1)}`]}>
+                    <BarChart
+                      data={getAnalyticsData(cat === 'attribute' ? 'byAttribute' : 'byParameter')}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="category" />
                       <YAxis />

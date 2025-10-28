@@ -1,6 +1,20 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Database, TrendingUp, Trash2, RefreshCw, Clock } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import * as XLSX from 'xlsx';
 import { getWasteData, FilterOptions } from '../../services/apiService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +33,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
   const loadDataFromAPI = async () => {
     setIsLoading(true);
     setLoadStatus('idle');
-    
+
     try {
       const apiData = await getWasteData(filters);
       setWasteData(apiData);
@@ -51,7 +65,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
 
     const totalQuantity = wasteData.reduce((sum, item) => sum + (item.quantity || 0), 0);
     const totalValue = wasteData.reduce((sum, item) => sum + (item.value || 0), 0);
-    
+
     // Group by Parameter (waste types)
     const parameterMap = new Map();
     wasteData.forEach(item => {
@@ -123,12 +137,12 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
 
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([analytics.overview]), "Overview");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.byParameter), "By Parameter");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.bySubCategory), "By SubCategory");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.byPlant), "By Plant");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.monthlyTrend), "Monthly Trend");
-    XLSX.writeFile(wb, "Waste_Analytics_Report.xlsx");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([analytics.overview]), 'Overview');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.byParameter), 'By Parameter');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.bySubCategory), 'By SubCategory');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.byPlant), 'By Plant');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analytics.monthlyTrend), 'Monthly Trend');
+    XLSX.writeFile(wb, 'Waste_Analytics_Report.xlsx');
   };
 
   return (
@@ -166,10 +180,25 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
         </CardHeader>
         <CardContent>
           <div className="p-4 rounded bg-gray-50">
-            {isLoading && <p className="flex items-center text-blue-600"><Clock className="w-5 h-5 animate-spin mr-2" />Loading waste data from database...</p>}
-            {loadStatus === 'success' && <p className="text-green-600">✅ Successfully loaded {wasteData.length} waste records</p>}
-            {loadStatus === 'error' && <p className="text-red-600">❌ Error connecting to database. Please check connection settings.</p>}
-            {loadStatus === 'idle' && !isLoading && <p className="text-gray-600">🔄 Ready to load data...</p>}
+            {isLoading && (
+              <p className="flex items-center text-blue-600">
+                <Clock className="w-5 h-5 animate-spin mr-2" />
+                Loading waste data from database...
+              </p>
+            )}
+            {loadStatus === 'success' && (
+              <p className="text-green-600">
+                ✅ Successfully loaded {wasteData.length} waste records
+              </p>
+            )}
+            {loadStatus === 'error' && (
+              <p className="text-red-600">
+                ❌ Error connecting to database. Please check connection settings.
+              </p>
+            )}
+            {loadStatus === 'idle' && !isLoading && (
+              <p className="text-gray-600">🔄 Ready to load data...</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -202,19 +231,27 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <p className="text-2xl font-bold text-red-600">{analytics.overview.totalQuantity.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {analytics.overview.totalQuantity.toFixed(2)}
+                    </p>
                     <p className="text-sm text-gray-600">Total Quantity (MT)</p>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <p className="text-2xl font-bold text-orange-600">{analytics.overview.totalValue.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {analytics.overview.totalValue.toFixed(2)}
+                    </p>
                     <p className="text-sm text-gray-600">Total Value</p>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <p className="text-2xl font-bold text-yellow-600">{analytics.overview.avgQuantity.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {analytics.overview.avgQuantity.toFixed(2)}
+                    </p>
                     <p className="text-sm text-gray-600">Avg Quantity</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">{analytics.overview.avgValue.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {analytics.overview.avgValue.toFixed(2)}
+                    </p>
                     <p className="text-sm text-gray-600">Avg Value</p>
                   </div>
                 </div>
@@ -222,7 +259,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
             </Card>
           </TabsContent>
 
-          {/* Waste Types Analysis */}
+          {/* Waste Types */}
           <TabsContent value="parameter">
             <Card>
               <CardHeader>
@@ -244,7 +281,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
             </Card>
           </TabsContent>
 
-          {/* Disposal Methods Analysis */}
+          {/* Disposal Methods */}
           <TabsContent value="subcategory">
             <Card>
               <CardHeader>
@@ -266,7 +303,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
             </Card>
           </TabsContent>
 
-          {/* Plant Analysis */}
+          {/* Plant */}
           <TabsContent value="plant">
             <Card>
               <CardHeader>
@@ -284,7 +321,7 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
                       outerRadius={80}
                       fill="#8884d8"
                     >
-                      {analytics.byPlant.map((entry, index) => (
+                      {analytics.byPlant.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                       ))}
                     </Pie>
@@ -310,7 +347,12 @@ const WasteAnalytics = ({ filters }: { filters?: FilterOptions }) => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="totalQuantity" stroke={colors[0]} name="Quantity (MT)" />
+                    <Line
+                      type="monotone"
+                      dataKey="totalQuantity"
+                      stroke={colors[0]}
+                      name="Quantity (MT)"
+                    />
                     <Line type="monotone" dataKey="totalValue" stroke={colors[1]} name="Value" />
                   </LineChart>
                 </ResponsiveContainer>

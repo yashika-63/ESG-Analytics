@@ -1,4 +1,3 @@
-import React from 'react';
 import ESGDashboard from './components/Dashboard/ESGDashboard';
 import './App.css';
 
